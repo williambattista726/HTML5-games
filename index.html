@@ -1,11 +1,144 @@
-<!-- index.html -->
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>GFiles</title>
-  </head>
-  <body>
-    <h1>Welcome to GFiles</h1>
-    <p><a href="/html5">Go to GFiles</a></p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HTML5 Games Navigator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 30px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+    }
+    .folder-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .folder {
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 15px 25px;
+      text-decoration: none;
+      color: #007acc;
+      font-weight: bold;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+    }
+    .folder:hover {
+      background-color: #e0f7ff;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <h1>HTML5 Games Folder Navigator</h1>
+  <div class="folder-list" id="folders"></div>
+  <script>
+    // Folders from the provided images
+    const folders = [
+      "cuttheropeimetravel",
+      "dinosaur",
+      "doctor-acorn2",
+      "doctor-acorn3",
+      "doge2048",
+      "dogeminer",
+      "doodle-jump",
+      "driftboss",
+      "ducklife",
+      "ducklife2",
+      "ducklife3",
+      "ducklife4",
+      "ducklife5",
+      "edge-surf",
+      "edgenotfound",
+      "elasticmorty",
+      "evilglitch",
+      "factoryballsforever",
+      "fireboy-and-watergirl-1",
+      "fireboy-and-watergirl-2",
+      "fireboy-and-watergirl-3",
+      "fireboy-and-watergirl-4",
+      "firewater",
+      "flappy-2048",
+      "flappybird",
+      "fnaf",
+      "fnaf2",
+      "fnaf3",
+      "fnaf4",
+      "friendlyfire",
+      "geometry",
+      "geometrydash",
+      "gopher",
+      "hextris",
+      "icypurplehead2",
+      "icypurplehead3",
+      "konnekt",
+      "mc1.5.2",
+      "mcbeta0.30",
+      "mcbeta1.3",
+      "minecraft",
+      "motox3m",
+      "ninjavevilcorp",
+      "packabunchas",
+      "pacman",
+      "paperio",
+      "particleclicker",
+      "physicsplayground",
+      "pushback",
+      "q1k3",
+      "rabbit-samurai",
+      "rabbit-samurai2",
+      "racer",
+      "radiusraid",
+      "retrobowl",
+      "retrohaunt",
+      "roadblocks",
+      "rooftopsniper",
+      "run3",
+      "shuttledeck",
+      "sleepingbeauty",
+      "slitherio",
+      "slope",
+      "sm63",
+      "sm64",
+      "snake",
+      "spacecompany",
+      "spacegarden",
+      "spacehuggers",
+      "spaceinvaders",
+      "stack",
+      "stacktower",
+      "subway-surfers",
+      "surviv.io",
+      "templerun",
+      "tetris",
+      "towermaster",
+      "underrun",
+      "vex3",
+      "vex4",
+      "vex5",
+      "vex6",
+      "webretro",
+      "xx142-b2exe"
+    ];
+    
+    const baseURL = "https://html-5-games-eosin.vercel.app/html5/";
+    const container = document.getElementById("folders");
+    folders.forEach(folder => {
+      const link = document.createElement("a");
+      link.href = `${baseURL}${folder}/`;
+      link.textContent = folder;
+      link.className = "folder";
+      link.target = "_blank";
+      container.appendChild(link);
+    });
+  </script>
+</body>
 </html>
