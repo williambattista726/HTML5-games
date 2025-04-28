@@ -22,6 +22,29 @@ h1 {
   text-align: center;
 }
 
+/* Search bar styling */
+.search-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+#searchInput {
+  padding: 0.75rem 1rem;
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#searchInput:focus {
+  border-color: #c0b17f;
+  box-shadow: 0 0 0 2px rgba(224, 211, 163, 0.2);
+}
+
 /* Manila folder styling - kept simple but functional */
 .folder-list {
   display: grid;
@@ -74,6 +97,20 @@ h1 {
 .folder:hover {
   transform: translateY(-2px);
   box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.hidden {
+  display: none;
+}
+
+/* No results message */
+#noResults {
+  text-align: center;
+  width: 100%;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
+  display: none;
 }
 
 /* Minimal navigation */
@@ -132,12 +169,24 @@ button:hover, .button:hover {
   .folder-list {
     gap: 1rem;
   }
+  
+  #searchInput {
+    max-width: 100%;
+  }
 }
   </style>
 </head>
 <body>
   <h1>HTML5 Games Folder Navigator</h1>
+  
+  <!-- Search Bar -->
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search for games..." autocomplete="off">
+  </div>
+  
   <div class="folder-list" id="folders"></div>
+  <div id="noResults">No games found matching your search.</div>
+  
   <script>
     // Folders from the provided images
     const folders = [
@@ -251,13 +300,54 @@ button:hover, .button:hover {
     
     const baseURL = "https://html.infintecampus.info/html5/";
     const container = document.getElementById("folders");
+    const noResultsMessage = document.getElementById("noResults");
+    const searchInput = document.getElementById("searchInput");
+    
+    // Create folder elements
+    const folderElements = [];
+    
     folders.forEach(folder => {
       const link = document.createElement("a");
       link.href = `${baseURL}${folder}/`;
-      link.textContent = folder;
+      link.textContent = folder.replace(/-/g, " "); // Replace hyphens with spaces for better readability
+      link.dataset.name = folder; // Store original folder name
       link.className = "folder";
       link.target = "_blank";
       container.appendChild(link);
+      folderElements.push(link);
+    });
+    
+    // Search functionality
+    searchInput.addEventListener("input", function() {
+      const searchTerm = this.value.toLowerCase().trim();
+      let visibleCount = 0;
+      
+      folderElements.forEach(folderElement => {
+        const folderName = folderElement.textContent.toLowerCase();
+        if (folderName.includes(searchTerm)) {
+          folderElement.classList.remove("hidden");
+          visibleCount++;
+        } else {
+          folderElement.classList.add("hidden");
+        }
+      });
+      
+      // Show "no results" message if needed
+      if (visibleCount === 0 && searchTerm !== "") {
+        noResultsMessage.style.display = "block";
+      } else {
+        noResultsMessage.style.display = "none";
+      }
+    });
+    
+    // Clear search when pressing Escape
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Escape") {
+        searchInput.value = "";
+        // Trigger the input event to update the display
+        searchInput.dispatchEvent(new Event("input"));
+        searchInput.focus();
+      }
     });
   </script>
 </body>
