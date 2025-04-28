@@ -69,6 +69,7 @@ h1 {
   align-items: center;
   justify-content: center;
   text-align: center;
+  cursor: pointer;
 }
 
 .folder::before {
@@ -97,6 +98,115 @@ h1 {
 .folder:hover {
   transform: translateY(-2px);
   box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+/* Grey changelog folder */
+.changelog-folder {
+  background: #d0d0d0; /* Original grey folder color */
+  border: 1px solid #b0b0b0;
+  grid-column: 1;
+  order: -1;
+}
+
+.changelog-folder::before {
+  background: #b0b0b0; /* Darker tab color */
+  border: 1px solid #b0b0b0;
+}
+
+/* Changelog Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.overlay.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.changelog-container {
+  background: #f0f0f0;
+  width: 80%;
+  max-width: 700px;
+  max-height: 80vh;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  position: relative;
+  padding: 2rem;
+  overflow-y: auto;
+  transform: translateY(-20px);
+  transition: transform 0.3s;
+}
+
+.overlay.show .changelog-container {
+  transform: translateY(0);
+}
+
+/* Folder tab for the changelog */
+.changelog-container::before {
+  content: "CHANGELOG";
+  position: absolute;
+  top: -30px;
+  left: 20px;
+  background: #b0b0b0;
+  padding: 5px 20px;
+  border-radius: 5px 5px 0 0;
+  color: #fff;
+  font-weight: bold;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-button:hover {
+  color: #333;
+}
+
+.changelog-content {
+  color: #444;
+}
+
+.changelog-content h2 {
+  margin-top: 0;
+  color: #555;
+  font-size: 1.5rem;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+.changelog-entry {
+  margin-bottom: 1.5rem;
+}
+
+.changelog-date {
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.changelog-list {
+  margin: 0;
+  padding-left: 1.5rem;
 }
 
 .hidden {
@@ -173,6 +283,11 @@ button:hover, .button:hover {
   #searchInput {
     max-width: 100%;
   }
+  
+  .changelog-container {
+    width: 90%;
+    padding: 1.5rem;
+  }
 }
   </style>
 </head>
@@ -186,6 +301,24 @@ button:hover, .button:hover {
   
   <div class="folder-list" id="folders"></div>
   <div id="noResults">No games found matching your search.</div>
+  
+  <!-- Changelog Overlay -->
+  <div class="overlay" id="changelogOverlay">
+    <div class="changelog-container">
+      <button class="close-button" id="closeChangelog">&times;</button>
+      <div class="changelog-content">
+        <h2>HTML5 Games Navigator - Changelog</h2>
+        
+        <div class="changelog-entry">
+          <div class="changelog-date">April 27, 2025</div>
+          <ul class="changelog-list">
+            <li>Added More Games, Changelog and Search Bar</li>
+            <li>Fixed Game Rendering Issues</li>
+            <li>Added Emulator Capabilities</li>
+          </ul>
+        </div>
+        </div>
+      </div>
   
   <script>
     // Folders from the provided images
@@ -302,8 +435,48 @@ button:hover, .button:hover {
     const container = document.getElementById("folders");
     const noResultsMessage = document.getElementById("noResults");
     const searchInput = document.getElementById("searchInput");
+    const changelogOverlay = document.getElementById("changelogOverlay");
+    const closeChangelogBtn = document.getElementById("closeChangelog");
     
-    // Create folder elements
+    // Add the changelog folder
+    const changelogFolder = document.createElement("div");
+    changelogFolder.className = "folder changelog-folder";
+    changelogFolder.textContent = "changelog";
+    container.appendChild(changelogFolder);
+    
+    // Add event listener to open changelog
+    changelogFolder.addEventListener("click", function() {
+      changelogOverlay.classList.add("show");
+    });
+    
+    // Close changelog when clicking the close button
+    closeChangelogBtn.addEventListener("click", function() {
+      changelogOverlay.classList.remove("show");
+    });
+    
+    // Close changelog when clicking outside the changelog
+    changelogOverlay.addEventListener("click", function(event) {
+      if (event.target === changelogOverlay) {
+        changelogOverlay.classList.remove("show");
+      }
+    });
+    
+    // Close changelog when pressing Escape
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Escape" && changelogOverlay.classList.contains("show")) {
+        changelogOverlay.classList.remove("show");
+        return;
+      }
+      
+      if (event.key === "Escape" && !changelogOverlay.classList.contains("show")) {
+        searchInput.value = "";
+        // Trigger the input event to update the display
+        searchInput.dispatchEvent(new Event("input"));
+        searchInput.focus();
+      }
+    });
+    
+    // Create folder elements for game folders
     const folderElements = [];
     
     folders.forEach(folder => {
@@ -316,39 +489,37 @@ button:hover, .button:hover {
       container.appendChild(link);
       folderElements.push(link);
     });
-    
     // Search functionality
-    searchInput.addEventListener("input", function() {
-      const searchTerm = this.value.toLowerCase().trim();
-      let visibleCount = 0;
-      
-      folderElements.forEach(folderElement => {
-        const folderName = folderElement.textContent.toLowerCase();
-        if (folderName.includes(searchTerm)) {
-          folderElement.classList.remove("hidden");
-          visibleCount++;
-        } else {
-          folderElement.classList.add("hidden");
-        }
-      });
-      
-      // Show "no results" message if needed
-      if (visibleCount === 0 && searchTerm !== "") {
-        noResultsMessage.style.display = "block";
-      } else {
-        noResultsMessage.style.display = "none";
-      }
-    });
-    
-    // Clear search when pressing Escape
-    document.addEventListener("keydown", function(event) {
-      if (event.key === "Escape") {
-        searchInput.value = "";
-        // Trigger the input event to update the display
-        searchInput.dispatchEvent(new Event("input"));
-        searchInput.focus();
-      }
-    });
+searchInput.addEventListener("input", function() {
+  const searchTerm = this.value.toLowerCase().trim();
+  let visibleCount = 0;
+  
+  // Filter game folders
+  folderElements.forEach(folderElement => {
+    const folderName = folderElement.textContent.toLowerCase();
+    if (folderName.includes(searchTerm)) {
+      folderElement.classList.remove("hidden");
+      visibleCount++;
+    } else {
+      folderElement.classList.add("hidden");
+    }
+  });
+
+  // Show "no results" message if needed
+  if (visibleCount === 0 && searchTerm !== "") {
+    noResultsMessage.style.display = "block";
+  } else {
+    noResultsMessage.style.display = "none";
+  }
+
+  // Always show changelog folder at the end of the search process, not first
+  if (visibleCount === 0 || searchTerm === "") {
+    changelogFolder.classList.remove("hidden");
+  } else {
+    changelogFolder.classList.add("hidden");
+  }
+});
+
   </script>
 </body>
 </html>
